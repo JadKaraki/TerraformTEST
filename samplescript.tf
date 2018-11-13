@@ -11,11 +11,11 @@ variable "location" {
   default     = "westeurope"
 }
 
-variable "sql_admin" {
+variable "sql_admin" { #user has to set up his username
   description = "The administrator username of the SQL Server."
 }
 
-variable "sql_password" {
+variable "sql_password" {  #user has to input is sql server password
   description = "The administrator password of the SQL Server."
 }
 
@@ -27,7 +27,9 @@ resource "azurerm_resource_group" "rg" {
   location = "${var.location}"
 }
 
-resource "azurerm_virtual_network" "vnet1" {
+
+
+resource "azurerm_virtual_network" "vnet1" {     #Create Virtual Network 1
   name                = "${var.resource_group}-vnet1"
   location            = "${var.location}"
   address_space       = ["10.0.0.0/24"]
@@ -39,7 +41,7 @@ resource "azurerm_virtual_network" "vnet1" {
   }
 }
 
-resource "azurerm_virtual_network" "vnet2" {
+resource "azurerm_virtual_network" "vnet2" {   #Create Virtual Network 2
   name                = "${var.resource_group}-vnet2"
   location            = "${var.location}"
   address_space       = ["192.168.0.0/24"]
@@ -51,7 +53,7 @@ resource "azurerm_virtual_network" "vnet2" {
   }
 }
 
-resource "azurerm_virtual_network_peering" "peer1" {
+resource "azurerm_virtual_network_peering" "peer1" {  #Peer vnet1 with vnet 2 
   name                         = "vNet1-to-vNet2"
   resource_group_name          = "${azurerm_resource_group.rg.name}"
   virtual_network_name         = "${azurerm_virtual_network.vnet1.name}"
@@ -61,7 +63,7 @@ resource "azurerm_virtual_network_peering" "peer1" {
   allow_gateway_transit        = false
 }
 
-resource "azurerm_virtual_network_peering" "peer2" {
+resource "azurerm_virtual_network_peering" "peer2" { #Peer vnet2 with vnet 1 
   name                         = "vNet2-to-vNet1"
   resource_group_name          = "${azurerm_resource_group.rg.name}"
   virtual_network_name         = "${azurerm_virtual_network.vnet2.name}"
@@ -72,7 +74,7 @@ resource "azurerm_virtual_network_peering" "peer2" {
   use_remote_gateways          = false
 }
 
-resource "azurerm_sql_database" "db" {
+resource "azurerm_sql_database" "db" {  #Deploy sql database 
   name                             = "mysqldatabase"
   resource_group_name              = "${azurerm_resource_group.rg.name}"
   location                         = "${var.location}"
@@ -83,7 +85,7 @@ resource "azurerm_sql_database" "db" {
   server_name                      = "${azurerm_sql_server.server.name}"
 }
 
-resource "azurerm_sql_server" "server" {
+resource "azurerm_sql_server" "server" { #Deploy sql server 
   name                         = "${var.resource_group}-sqlsvr"
   resource_group_name          = "${azurerm_resource_group.rg.name}"
   location                     = "${var.location}"
@@ -93,7 +95,10 @@ resource "azurerm_sql_server" "server" {
 
 }
 
-resource "azurerm_sql_firewall_rule" "fw" {
+
+
+resource "azurerm_sql_firewall_rule" "fw" {  # Enables the "Allow Access to Azure services" box as described in the API docs 
+
   name                = "firewallrules"
   resource_group_name = "${azurerm_resource_group.rg.name}"
   server_name         = "${azurerm_sql_server.server.name}"
